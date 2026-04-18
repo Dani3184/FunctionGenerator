@@ -1,0 +1,5 @@
+project:
+  title: "DDS Waveform Generator"
+  author: "Daniel Roberto Garcia Miranda"
+  description: "Generador digital de señales con control de frecuencia, amplitud y forma de onda"
+  language: "Verilog"
