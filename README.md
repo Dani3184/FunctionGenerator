@@ -1,45 +1,45 @@
 # DDS Waveform Generator
 
-## Descripción
-Este proyecto implementa un generador digital de señales basado en DDS (Direct Digital Synthesizer).
-Genera múltiples formas de onda con control de frecuencia y amplitud mediante una interfaz de 8 bits.
+## Description
+This project implements a digital waveform generator based on a Direct Digital Synthesis (DDS) architecture.  
+It generates multiple waveforms with programmable frequency and amplitude using an 8-bit control input.
 
-## Características
-- Generación de:
-  - Seno (LUT)
-  - Diente de sierra
-  - Onda cuadrada
-  - Onda triangular
-  - Función cuadrática
-- Control digital completo mediante `ui_in`
-- Salida de 8 bits lista para DAC
+## Features
+- Generates:
+  - Sine wave (LUT-based)
+  - Sawtooth wave
+  - Square wave
+  - Triangle wave
+  - Quadratic function
+- Fully digital control via `ui_in`
+- 8-bit output suitable for DAC interfacing
 
-## Interfaz
+## Interface
 
-### Entradas
-- `clk` → reloj
-- `rst_n` → reset activo en bajo
-- `ui_in[7:0]` → control
+### Inputs
+- `clk` → system clock  
+- `rst_n` → active-low reset  
+- `ui_in[7:0]` → control input  
 
-### Mapeo de `ui_in`
-- `ui_in[2:0]` → selección de función
-- `ui_in[5:3]` → amplitud
-- `ui_in[7:6]` → frecuencia
+### Control Mapping
+- `ui_in[2:0]` → waveform selection  
+- `ui_in[5:3]` → amplitude control  
+- `ui_in[7:6]` → frequency control  
 
-### Salida
-- `uo_out[7:0]` → señal digital
+### Output
+- `uo_out[7:0]` → digital waveform output  
 
-## Funcionamiento
-El diseño utiliza un acumulador de fase (DDS) para generar señales periódicas.
-Dependiendo de la configuración, se selecciona la forma de onda y se escala su amplitud.
+## Operation
+The design uses a phase accumulator (DDS) to generate periodic signals.  
+The waveform is selected based on control inputs and scaled by amplitude before being sent to the output.
 
-## Uso
-El valor de `uo_out` puede conectarse a:
-- un DAC (por ejemplo R-2R)
-- un osciloscopio
-- un sistema digital
+## Usage
+The output can be connected to:
+- a DAC (e.g., R-2R ladder)
+- an oscilloscope
+- digital signal processing systems
 
-## Aplicaciones
-- Generadores de señal
-- Instrumentación digital
-- Sistemas embebidos
+## Applications
+- Function generators  
+- Digital instrumentation  
+- Embedded systems  
