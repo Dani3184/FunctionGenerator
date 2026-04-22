@@ -59,6 +59,7 @@ end
 
 // Waveform selection
 reg [7:0] y_func;
+wire [15:0] phase_squared = phase * phase;    
 
 always @(*) begin
     case (func_sel)
@@ -66,7 +67,7 @@ always @(*) begin
         3'b001: y_func = phase;                        // Sawtooth
         3'b010: y_func = phase[7] ? 8'd255 : 8'd0;     // Square
         3'b011: y_func = phase[7] ? (~phase << 1) : (phase << 1); // Triangle
-        3'b100: y_func = (phase * phase) >> 8;         // Quadratic
+        3'b100: y_func = phase_squared[15:8];         // Quadratic
         default: y_func = 8'd0;
     endcase
 end
