@@ -30,26 +30,27 @@ initial begin
     rst_n = 0;
     #20;
     rst_n = 1;
+    #10;
 
     // =====================
     // Waveform tests
     // =====================
 
-    ui_in = 8'b000_100_01; #5000; // Sine
-    ui_in = 8'b001_111_10; #5000; // Sawtooth
-    ui_in = 8'b010_111_11; #5000; // Square
-    ui_in = 8'b011_011_10; #5000; // Triangle
-    ui_in = 8'b100_111_01; #5000; // Quadratic
+    ui_in = 8'b11_100_000; #100; // Sine
+    ui_in = 8'b11_100_001; #100; // Sawtooth
+    ui_in = 8'b11_100_010; #100; // Square
+    ui_in = 8'b11_100_011; #100; // Triangle
+    ui_in = 8'b11_100_100; #120; // Quadratic
 
     // =====================
     // Frequency sweep
     // =====================
-    ui_in[5:0] = 6'b000100; // Sine + fixed amplitude
+    ui_in[5:0] = 6'100000; // Sine + fixed amplitude
 
-    ui_in[7:6] = 2'b00; #4000;
-    ui_in[7:6] = 2'b01; #4000;
-    ui_in[7:6] = 2'b10; #4000;
-    ui_in[7:6] = 2'b11; #4000;
+    ui_in[7:6] = 2'b00; #40;
+    ui_in[7:6] = 2'b01; #40;
+    ui_in[7:6] = 2'b10; #40;
+    ui_in[7:6] = 2'b11; #40;
 
     // =====================
     // Amplitude sweep
@@ -57,10 +58,10 @@ initial begin
     ui_in[7:6] = 2'b01; // Fixed frequency
     ui_in[2:0] = 3'b000; // Sine
 
-    ui_in[5:3] = 3'b001; #3000;
-    ui_in[5:3] = 3'b010; #3000;
-    ui_in[5:3] = 3'b100; #3000;
-    ui_in[5:3] = 3'b111; #3000;
+    ui_in[5:3] = 3'b001; #30;
+    ui_in[5:3] = 3'b010; #30;
+    ui_in[5:3] = 3'b100; #30;
+    ui_in[5:3] = 3'b111; #30;
 
     $finish;
 end
