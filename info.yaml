@@ -1,5 +1,16 @@
 project:
   title: "DDS Waveform Generator"
-  author: "Daniel Roberto Garcia Miranda"
-  description: "Generador digital de señales con control de frecuencia, amplitud y forma de onda"
+  author: "Daniel Garcia"
+  description: "Digital waveform generator with frequency, amplitude, and waveform control"
   language: "Verilog"
+  clock_hz: 50000000
+
+  discord_user: "dani_318"
+
+  inputs:
+    - clk
+    - rst_n
+    - ui_in[7:0]
+
+  outputs:
+    - uo_out[7:0]
