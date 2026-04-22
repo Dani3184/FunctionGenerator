@@ -4,6 +4,9 @@
 This project implements a digital waveform generator based on a Direct Digital Synthesis (DDS) architecture.  
 It generates multiple waveforms with programmable frequency and amplitude using an 8-bit control input.
 
+## Clock
+The design is intended to operate at a 50 MHz system clock.
+
 ## Features
 - Generates:
   - Sine wave (LUT-based)
@@ -28,6 +31,15 @@ It generates multiple waveforms with programmable frequency and amplitude using 
 
 ### Output
 - `uo_out[7:0]` → digital waveform output  
+
+## DAC Requirements
+The output is an 8-bit digital signal intended for use with an external DAC.
+
+Recommended characteristics:
+- Resolution: 8 bits or higher
+- Input type: Parallel digital input
+- Example: R-2R ladder DAC or external DAC IC
+- Output range: 0–3.3V
 
 ## Operation
 The design uses a phase accumulator (DDS) to generate periodic signals.  
