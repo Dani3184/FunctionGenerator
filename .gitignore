@@ -1,0 +1,37 @@
+# macOS
+.DS_Store
+
+# IDEs
+.idea/
+.vscode/
+
+# Simulation waveforms
+*.vcd
+*.fst
+*.fst.hier
+
+# Cocotb / simulation
+test/sim_build/
+test/__pycache__/
+test/results.xml
+test/*.log
+
+# Gate-level generated files
+test/gate_level_netlist.v
+
+# Build / synthesis (Tiny Tapeout / LibreLane)
+runs/
+tt_submission/
+
+# Temporary / config generated
+src/user_config.json
+src/config_merged.json
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Misc temp
+*~
+*.swp
