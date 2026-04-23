@@ -7,7 +7,8 @@ from cocotb.utils import get_sim_time
 async def reset(dut):
     dut.rst_n.value = 0
     dut.ui_in.value = 0
-    await Timer(20, units="ns")
+    dut.ena.value = 1   # ✅ FIX CLAVE
+    await Timer(20, unit="ns")
     dut.rst_n.value = 1
     await RisingEdge(dut.clk)
 
@@ -23,22 +24,20 @@ async def run_cycles(dut, cycles=200):
 @cocotb.test()
 async def full_test(dut):
 
-    # 50 MHz clock
-    cocotb.start_soon(Clock(dut.clk, 20, units="ns").start())
+    cocotb.start_soon(Clock(dut.clk, 20, unit="ns").start())
 
     await reset(dut)
 
-    # Verify clock period
+    # Check clock
     await RisingEdge(dut.clk)
     t1 = get_sim_time('ns')
     await RisingEdge(dut.clk)
     t2 = get_sim_time('ns')
-    dut._log.info(f"Clock period = {t2 - t1} ns (should be 20 ns)")
+    dut._log.info(f"Clock period = {t2 - t1} ns")
 
     await run_cycles(dut, 10)
 
     # Waveforms
-  
     configs = [
         ("SINE",       0b000_100_01),
         ("SAW",        0b001_111_10),
@@ -56,8 +55,7 @@ async def full_test(dut):
 
         dut._log.info(f"{name} OK")
 
-    # Frequency
-
+    # Frequency test
     changes_per_freq = []
 
     for freq in range(4):
@@ -70,8 +68,7 @@ async def full_test(dut):
     assert changes_per_freq[0] < changes_per_freq[-1], "Frequency failed"
     dut._log.info("Frequency OK")
 
-    # Amplitude
-
+    # Amplitude test
     dut.ui_in.value = 0b000_001_01
     low_vals = await run_cycles(dut, 200)
 
