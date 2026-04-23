@@ -16,9 +16,10 @@ assign uio_out = 8'b0;
 assign uio_oe  = 8'b0;
 
 // Testbench mapping (must match cocotb test)
-wire [2:0] func_sel  = ui_in[7:5]; 
-wire [2:0] amp_ctrl  = ui_in[4:2];
-wire [1:0] freq_ctrl = ui_in[1:0];
+wire [2:0] func_sel  = ui_in[2:0];
+wire [2:0] amp_ctrl  = ui_in[5:3];
+wire [1:0] freq_ctrl = ui_in[7:6];
+
 
 // Avoid zero amplitude
 wire [2:0] amp_safe = (amp_ctrl == 0) ? 3'd1 : amp_ctrl;
