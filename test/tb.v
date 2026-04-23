@@ -11,7 +11,7 @@ wire [7:0] uo_out;
 tt_um_gen_onda uut (
     .clk(clk),
     .rst_n(rst_n),
-    .ena(1'b1),   // ✅ FIX CLAVE
+    .ena(1'b1),  
     .ui_in(ui_in),
     .uo_out(uo_out),
     .uio_in(8'b0),
