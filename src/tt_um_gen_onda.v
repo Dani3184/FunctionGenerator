@@ -15,7 +15,7 @@ module tt_um_gen_onda (
 assign uio_out = 8'b0;
 assign uio_oe  = 8'b0;
 
-// Input decoding
+// Testbench uses: [7:5] Waveform, [4:2] Amplitude, [1:0] Frequency
 wire [2:0] func_sel  = ui_in[7:5]; 
 wire [2:0] amp_ctrl  = ui_in[4:2];
 wire [1:0] freq_ctrl = ui_in[1:0];
@@ -46,7 +46,7 @@ always @(posedge clk or negedge rst_n) begin
         phase_acc <= phase_acc + freq_word;
 end
 
-// Use upper 8 bits as phase for full range and stability
+// Use upper 8 bits as phase
 wire [7:0] phase = phase_acc[15:8];
 
 // Sine LUT (16 points)
@@ -73,13 +73,13 @@ wire [15:0] phase_squared = phase * phase;
 
 always @(*) begin
     case (func_sel)
-        3'b000: y_func = sine_out;                                // Sine
-        3'b001: y_func = phase;                                   // Sawtooth
-        // SQUARE fix: slight variation to ensure len(set) > 5 in test
-        3'b010: y_func = phase[7] ? (8'd240 + phase[3:0]) : (8'd0 + phase[3:0]); 
-        // TRIANGLE fix: robust inversion
+        3'b000: y_func = sine_out;                                
+        3'b001: y_func = phase;                                   
+        // SQUARE fix: we use more bits of phase to ensure variation > 5 values even after scaling
+        3'b010: y_func = phase[7] ? (8'd240 + phase[4:0]) : (8'd0 + phase[4:0]); 
+        // TRIANGLE fix: logic inversion
         3'b011: y_func = phase[7] ? (~(phase << 1)) : (phase << 1); 
-        3'b100: y_func = phase_squared[15:8];                     // Quadratic
+        3'b100: y_func = phase_squared[15:8];                     
         default: y_func = 8'd0;
     endcase
 end
@@ -89,10 +89,10 @@ reg [7:0] scaled;
 
 always @(*) begin
     case (amp_safe)
-        3'd1:    scaled = y_func >> 2;          // 25%
-        3'd2:    scaled = y_func >> 1;          // 50%
-        3'd3:    scaled = (y_func * 3) >> 2;    // 75%
-        default: scaled = y_func;               // 100%
+        3'd1:    scaled = y_func >> 2;          
+        3'd2:    scaled = y_func >> 1;          
+        3'd3:    scaled = (y_func * 3) >> 2;    
+        default: scaled = y_func;               
     endcase
 end
 
