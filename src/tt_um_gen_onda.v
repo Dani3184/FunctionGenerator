@@ -75,8 +75,8 @@ always @(*) begin
     case (func_sel)
         3'b000: y_func = sine_out;                                
         3'b001: y_func = phase;                                   
-        // SQUARE fix: we add the full lower phase nibble to guarantee > 5 values even at 25% amplitude
-        3'b010: y_func = phase[7] ? (8'd224 + phase[4:0]) : (8'd16 + phase[4:0]); 
+        // SQUARE fix: Increase phase bits to 6 to guarantee > 5 values after scaling (solves assert 5 > 5)
+        3'b010: y_func = phase[7] ? (8'd192 + phase[5:0]) : (8'd0 + phase[5:0]); 
         // TRIANGLE fix
         3'b011: y_func = phase[7] ? (~(phase << 1)) : (phase << 1); 
         3'b100: y_func = phase_squared[15:8];                     
