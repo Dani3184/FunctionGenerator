@@ -2,7 +2,11 @@
 
 This project implements a Direct Digital Synthesis (DDS) waveform generator.
 
-The core of the design is a phase accumulator that continuously increases based on a programmable frequency word. The most significant bits of the phase are used to generate different waveforms.
+The core of the design is a phase accumulator that increases every clock cycle by a programmable frequency word (`freq_word`). The output frequency is proportional to this increment:
+
+f_out ≈ (freq_word / 2^16) * f_clk
+
+The most significant bits of the phase are used to generate different waveforms.
 
 A sine wave is generated using a lookup table (LUT), while other waveforms (sawtooth, square, triangle, and quadratic) are derived directly from the phase value.
 
@@ -12,43 +16,59 @@ The design operates with a 50 MHz system clock.
 
 ---
 
-## Control Table
+## Control Table (ui_in[7:0])
+
+The 8-bit input is divided as follows:
+
+[7:6] → Frequency control  
+[5:3] → Amplitude control  
+[2:0] → Waveform selection  
+
+---
 
 ### Waveform Selection (ui_in[2:0])
 
-| Value | Waveform |
-|------|----------|
-| 000 | Sine |
-| 001 | Sawtooth |
-| 010 | Square |
-| 011 | Triangle |
-| 100 | Quadratic |
+| Bits        | Function   |
+|------------|-----------|
+| xxx xxx 000 | Sine      |
+| xxx xxx 001 | Sawtooth  |
+| xxx xxx 010 | Square    |
+| xxx xxx 011 | Triangle  |
+| xxx xxx 100 | Quadratic |
 
-### Amplitude Control (ui_in[5:3])
-
-| Value | Level |
-|------|------|
-| 001 | Low |
-| 010 | Medium |
-| 100 | High |
-| 111 | Maximum |
-
-(Note: 000 is internally mapped to avoid zero amplitude)
+---
 
 ### Frequency Control (ui_in[7:6])
 
-| Value | Speed |
-|------|-------|
-| 00 | Very Low |
-| 01 | Low |
-| 10 | Medium |
-| 11 | High |
+| Bits        | freq_word | Description        |
+|------------|----------|--------------------|
+| 00 xxx xxx | 1000     | Low frequency      |
+| 01 xxx xxx | 5000     | Medium-low         |
+| 10 xxx xxx | 15000    | Medium-high        |
+| 11 xxx xxx | 30000    | High frequency     |
+
+Note: The output frequency depends on:
+
+f_out ≈ (freq_word / 65536) * f_clk
+
+---
+
+### Amplitude Control (ui_in[5:3])
+
+| Bits        | Level    |
+|------------|---------|
+| xxx 001 xxx | Low     |
+| xxx 010 xxx | Medium  |
+| xxx 100 xxx | High    |
+| xxx 111 xxx | Maximum |
+
+Note: `000` is internally remapped to avoid zero amplitude.
 
 ---
 
 ## How to test
 
-Apply a clock signal of 50 MHz to `clk` and release reset (`rst_n = 1`).
+Apply a 50 MHz clock to `clk` and release reset (`rst_n = 1`).
 
 Set the control input using:
 
@@ -60,9 +80,8 @@ Where:
 - `freq` controls the frequency
 
 Observe the output `uo_out[7:0]`:
-
-- With a simulator (waveform viewer)
-- Or using an external DAC connected to an oscilloscope
+- In simulation (waveform viewer)
+- Or using an external DAC and oscilloscope
 
 ---
 
@@ -81,14 +100,3 @@ Example implementations:
 - External DAC IC (e.g., MCP4901)
 
 ---
-
-## Images
-
-### Block Diagram
-![Block Diagram](block_diagram.png)
-
-### Waveform Output
-![Waveforms](waveforms.png)
-
-### DAC Connection (optional)
-![DAC](dac_connection.png)
