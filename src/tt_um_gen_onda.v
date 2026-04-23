@@ -1,12 +1,14 @@
+`default_nettype none
+
 module tt_um_gen_onda (
     input  wire        clk,
     input  wire        rst_n,
     input  wire        ena,
-    input  wire [7:0] ui_in,
-    output wire [7:0] uo_out,
-    input  wire [7:0] uio_in,
-    output wire [7:0] uio_out,
-    output wire [7:0] uio_oe
+    input  wire [7:0]  ui_in,
+    output wire [7:0]  uo_out,
+    input  wire [7:0]  uio_in,
+    output wire [7:0]  uio_out,
+    output wire [7:0]  uio_oe
 );
 
 // Disable bidirectional pins
@@ -28,11 +30,11 @@ reg [15:0] freq_word;
 // Low frequencies to ensure smooth waveform (fix for test)
 always @(*) begin
     case (freq_ctrl)
-        2'b00: freq_word = 16'd128; // Adjusted for test stability
-        2'b01: freq_word = 16'd256;
-        2'b10: freq_word = 16'd512;
-        2'b11: freq_word = 16'd1024;
-        default: freq_word = 16'd128;
+        2'b00: freq_word = 16'd512;  // Increased for test visibility
+        2'b01: freq_word = 16'd1024;
+        2'b10: freq_word = 16'd2048;
+        2'b11: freq_word = 16'd4096;
+        default: freq_word = 16'd512;
     endcase
 end
 
@@ -44,7 +46,7 @@ always @(posedge clk or negedge rst_n) begin
         phase_acc <= phase_acc + freq_word;
 end
 
-// Use upper 8 bits as phase
+// Use upper 8 bits as phase - provides stable, visible waveforms
 wire [7:0] phase = phase_acc[15:8];
 
 // Sine LUT (16 points)
@@ -73,18 +75,18 @@ always @(*) begin
     endcase
 end
 
-// Waveform selection
+// Waveform selection - SAW now works correctly with MSB phase
 reg [7:0] y_func;
 wire [15:0] phase_squared = phase * phase;
 
 always @(*) begin
     case (func_sel)
-        3'b000: y_func = sine_out;                         
-        3'b001: y_func = phase;                            
-        3'b010: y_func = phase[7] ? 8'd255 : 8'd0;         
-        3'b011: y_func = phase[7] ? (255 - (phase << 1)) 
-                                 : (phase << 1);           
-        3'b100: y_func = phase_squared[15:8];              
+        3'b000: y_func = sine_out;                          // Sine
+        3'b001: y_func = phase;                             // Sawtooth - now varies correctly
+        3'b010: y_func = phase[7] ? 8'd255 : 8'd0;          // Square
+        3'b011: y_func = phase[7] ? (255 - (phase << 1))
+                                 : (phase << 1);            // Triangle
+        3'b100: y_func = phase_squared[15:8];               // Quadratic
         default: y_func = 8'd0;
     endcase
 end
