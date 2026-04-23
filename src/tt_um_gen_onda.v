@@ -74,7 +74,7 @@ wire [15:0] phase_squared = phase * phase;
 always @(*) begin
     case (func_sel)
         3'b000: y_func = sine_out;
-        3'b001: y_func = phase_acc[15:8];  // saw
+        3'b001: y_func = phase_acc[13:6];  
         3'b010: y_func = phase[7] ? 8'd255 : 8'd0;
         3'b011: y_func = phase[7] ? (255 - (phase << 1))
                                  : (phase << 1);
