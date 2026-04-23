@@ -9,28 +9,23 @@ module tt_um_gen_onda (
     output wire [7:0] uio_oe
 );
 
-// Disable bidirectional pins (not used)
+// Disable bidirectional pins
 assign uio_out = 8'b0;
 assign uio_oe  = 8'b0;
 
 // Input decoding
-// ui_in[2:0] -> waveform selection
-// ui_in[5:3] -> amplitude control
-// ui_in[7:6] -> frequency control
-
 wire [2:0] func_sel  = ui_in[2:0];
 wire [2:0] amp_ctrl  = ui_in[5:3];
 wire [1:0] freq_ctrl = ui_in[7:6];
 
-// Prevent zero amplitude (avoid constant output)
+// Avoid zero amplitude
 wire [2:0] amp_safe = (amp_ctrl == 0) ? 3'd1 : amp_ctrl;
 
-// DDS (Direct Digital Synthesis) core
+// DDS core
 reg [15:0] phase_acc;
 reg [15:0] freq_word;
 
 // Frequency selection
-// Values are intentionally large to ensure visible changes
 always @(*) begin
     case (freq_ctrl)
         2'b00: freq_word = 16'd500;
@@ -42,7 +37,6 @@ always @(*) begin
 end
 
 // Phase accumulator
-// Increments every clock cycle when enabled
 always @(posedge clk or negedge rst_n) begin
     if (!rst_n)
         phase_acc <= 16'd0;
@@ -50,11 +44,10 @@ always @(posedge clk or negedge rst_n) begin
         phase_acc <= phase_acc + freq_word;
 end
 
-// Use the most significant 8 bits as phase output
+// Phase output
 wire [7:0] phase = phase_acc[15:8];
 
-// Sine approximation (cheap, no LUT)
-// Uses symmetry to generate a triangular sine-like shape
+// Sine approximation
 reg [7:0] sine_out;
 
 always @(*) begin
@@ -64,31 +57,35 @@ always @(*) begin
         sine_out = 8'd255 - phase;
 end
 
-// Waveform generator
+// Waveform selection
 reg [7:0] y_func;
 wire [15:0] phase_squared = phase * phase;
 
 always @(*) begin
     case (func_sel)
-        3'b000: y_func = sine_out;                               // pseudo sine
-        3'b001: y_func = phase;                                  // sawtooth
-        3'b010: y_func = phase[7] ? 8'd255 : 8'd0;               // square
+        3'b000: y_func = sine_out;                         
+        3'b001: y_func = phase;                            
+        3'b010: y_func = phase[7] ? 8'd255 : 8'd0;         
         3'b011: y_func = phase[7] ? (255 - (phase << 1)) 
-                                 : (phase << 1);                // triangle
-        3'b100: y_func = phase_squared[15:8];                    // quadratic
+                                 : (phase << 1);          
+        3'b100: y_func = phase_squared[15:8];              
         default: y_func = 8'd0;
     endcase
 end
 
-// Amplitude scaling
-// Simple linear scaling to preserve variation
+//  FIXED amplitude scaling (no precision loss)
 reg [7:0] scaled;
 
 always @(*) begin
-    scaled = (y_func * amp_safe) >> 2;
+    case (amp_safe)
+        3'd1: scaled = y_func >> 2;
+        3'd2: scaled = y_func >> 1;
+        3'd3: scaled = (y_func * 3) >> 2;
+        default: scaled = y_func;
+    endcase
 end
 
-// Output register (synchronous)
+// Output register
 reg [7:0] uo_out_reg;
 assign uo_out = uo_out_reg;
 
