@@ -1,9 +1,17 @@
 module tt_um_gen_onda (
     input  wire       clk,
     input  wire       rst_n,
+    input  wire       ena,          // Required
     input  wire [7:0] ui_in,
-    output wire [7:0] uo_out
+    output wire [7:0] uo_out,
+    input  wire [7:0] uio_in,       // Not used
+    output wire [7:0] uio_out,      // Not used
+    output wire [7:0] uio_oe        // Not used
 );
+
+// Disable bidirectional pins (not used)
+assign uio_out = 8'b0;
+assign uio_oe  = 8'b0;
 
 // Inputs decoding
 wire [2:0] func_sel  = ui_in[2:0]; // Waveform selector
@@ -32,7 +40,7 @@ end
 always @(posedge clk or negedge rst_n) begin
     if (!rst_n)
         phase_acc <= 16'd0;
-    else
+    else if (ena)
         phase_acc <= phase_acc + freq_word;
 end
 
@@ -59,6 +67,7 @@ end
 
 // Waveform selection
 reg [7:0] y_func;
+wire [15:0] phase_squared = phase * phase; // full precision square
 
 always @(*) begin
     case (func_sel)
@@ -66,7 +75,7 @@ always @(*) begin
         3'b001: y_func = phase;                        // Sawtooth
         3'b010: y_func = phase[7] ? 8'd255 : 8'd0;     // Square
         3'b011: y_func = phase[7] ? (~phase << 1) : (phase << 1); // Triangle
-        3'b100: y_func = (phase * phase) >> 8;         // Quadratic
+        3'b100: y_func = phase_squared[15:8];          // Quadratic (FIXED)
         default: y_func = 8'd0;
     endcase
 end
@@ -81,7 +90,7 @@ assign uo_out = uo_out_reg;
 always @(posedge clk or negedge rst_n) begin
     if (!rst_n)
         uo_out_reg <= 8'd0;
-    else
+    else if (ena)
         uo_out_reg <= mult_result[10:3]; // Scale down
 end
 
