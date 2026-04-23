@@ -45,7 +45,7 @@ always @(posedge clk or negedge rst_n) begin
 end
 
 // Use upper 8 bits as phase
-wire [7:0] phase = phase_acc[15:8];
+wire [7:0] phase = phase_acc[15:8] ^ phase_acc[7:0];
 
 // Sine LUT (16 points)
 reg [7:0] sine_out;
