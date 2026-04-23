@@ -1,42 +1,42 @@
 module tt_um_gen_onda (
     input  wire       clk,
     input  wire       rst_n,
-    input  wire       ena,          // Required
+    input  wire       ena,
     input  wire [7:0] ui_in,
     output wire [7:0] uo_out,
-    input  wire [7:0] uio_in,       // Not used
-    output wire [7:0] uio_out,      // Not used
-    output wire [7:0] uio_oe        // Not used
+    input  wire [7:0] uio_in,
+    output wire [7:0] uio_out,
+    output wire [7:0] uio_oe
 );
 
-// Disable bidirectional pins (not used)
+// Disable bidirectional pins
 assign uio_out = 8'b0;
 assign uio_oe  = 8'b0;
 
-// Inputs decoding
-wire [2:0] func_sel  = ui_in[2:0]; // Waveform selector
-wire [2:0] amp_ctrl  = ui_in[5:3]; // Amplitude control
-wire [1:0] freq_ctrl = ui_in[7:6]; // Frequency control
+// Decode inputs
+wire [2:0] func_sel  = ui_in[2:0];
+wire [2:0] amp_ctrl  = ui_in[5:3];
+wire [1:0] freq_ctrl = ui_in[7:6];
 
 // Avoid zero amplitude
 wire [2:0] amp_safe = (amp_ctrl == 0) ? 3'd1 : amp_ctrl;
 
-// Phase accumulator (DDS core)
+// DDS core
 reg [15:0] phase_acc;
 reg [15:0] freq_word;
 
 // Frequency selection
 always @(*) begin
     case (freq_ctrl)
-        2'b00:   freq_word = 16'd100;  // Low frequency
-        2'b01:   freq_word = 16'd500;
-        2'b10:   freq_word = 16'd2000;
-        2'b11:   freq_word = 16'd8000; // High frequency
+        2'b00: freq_word = 16'd100;
+        2'b01: freq_word = 16'd500;
+        2'b10: freq_word = 16'd2000;
+        2'b11: freq_word = 16'd8000;
         default: freq_word = 16'd100;
     endcase
 end
 
-// Phase accumulation
+// Phase accumulator
 always @(posedge clk or negedge rst_n) begin
     if (!rst_n)
         phase_acc <= 16'd0;
@@ -44,10 +44,10 @@ always @(posedge clk or negedge rst_n) begin
         phase_acc <= phase_acc + freq_word;
 end
 
-// Extract phase (8 MSBs)
+// Extract phase
 wire [7:0] phase = phase_acc[15:8];
 
-// Sine LUT (16 samples)
+// Sine LUT
 reg [7:0] sine_out;
 wire [3:0] idx = phase[7:4];
 
@@ -67,23 +67,32 @@ end
 
 // Waveform selection
 reg [7:0] y_func;
-wire [15:0] phase_squared = phase * phase; // full precision square
+wire [15:0] phase_squared = phase * phase;
 
 always @(*) begin
     case (func_sel)
-        3'b000: y_func = sine_out;                     // Sine
-        3'b001: y_func = phase;                        // Sawtooth
-        3'b010: y_func = phase[7] ? 8'd255 : 8'd0;     // Square
-        3'b011: y_func = phase[7] ? (~phase << 1) : (phase << 1); // Triangle
-        3'b100: y_func = phase_squared[15:8];          // Quadratic (FIXED)
+        3'b000: y_func = sine_out;
+        3'b001: y_func = phase;
+        3'b010: y_func = phase[7] ? 8'd255 : 8'd0;
+        3'b011: y_func = phase[7] ? ((~phase) << 1) : (phase << 1);
+        3'b100: y_func = phase_squared[15:8];
         default: y_func = 8'd0;
     endcase
 end
 
 // Amplitude scaling
-wire [10:0] mult_result = y_func * amp_safe;
+reg [7:0] scaled;
 
-// Registered output (required for Tiny Tapeout)
+always @(*) begin
+    case (amp_safe)
+        3'd1: scaled = y_func >> 2;                         // low
+        3'd2: scaled = y_func >> 1;                         // medium
+        3'd3: scaled = (y_func >> 1) + (y_func >> 2);       // ~0.75
+        default: scaled = y_func;                           // high/max
+    endcase
+end
+
+// Output register
 reg [7:0] uo_out_reg;
 assign uo_out = uo_out_reg;
 
@@ -91,7 +100,7 @@ always @(posedge clk or negedge rst_n) begin
     if (!rst_n)
         uo_out_reg <= 8'd0;
     else if (ena)
-        uo_out_reg <= mult_result[10:3]; // Scale down
+        uo_out_reg <= scaled;
 end
 
 endmodule
