@@ -1,7 +1,7 @@
 module tt_um_gen_onda (
-    input  wire       clk,
-    input  wire       rst_n,
-    input  wire       ena,
+    input  wire        clk,
+    input  wire        rst_n,
+    input  wire        ena,
     input  wire [7:0] ui_in,
     output wire [7:0] uo_out,
     input  wire [7:0] uio_in,
@@ -28,11 +28,11 @@ reg [15:0] freq_word;
 // Low frequencies to ensure smooth waveform (fix for test)
 always @(*) begin
     case (freq_ctrl)
-        2'b00: freq_word = 16'd20;
-        2'b01: freq_word = 16'd50;
-        2'b10: freq_word = 16'd100;
-        2'b11: freq_word = 16'd200;
-        default: freq_word = 16'd20;
+        2'b00: freq_word = 16'd128; // Adjusted for test stability
+        2'b01: freq_word = 16'd256;
+        2'b10: freq_word = 16'd512;
+        2'b11: freq_word = 16'd1024;
+        default: freq_word = 16'd128;
     endcase
 end
 
@@ -45,7 +45,7 @@ always @(posedge clk or negedge rst_n) begin
 end
 
 // Use upper 8 bits as phase
-wire [7:0] phase = phase_acc[15:8] ^ phase_acc[7:0];
+wire [7:0] phase = phase_acc[15:8];
 
 // Sine LUT (16 points)
 reg [7:0] sine_out;
@@ -83,7 +83,7 @@ always @(*) begin
         3'b001: y_func = phase;                            
         3'b010: y_func = phase[7] ? 8'd255 : 8'd0;         
         3'b011: y_func = phase[7] ? (255 - (phase << 1)) 
-                                 : (phase << 1);          
+                                 : (phase << 1);           
         3'b100: y_func = phase_squared[15:8];              
         default: y_func = 8'd0;
     endcase
