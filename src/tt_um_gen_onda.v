@@ -15,10 +15,10 @@ module tt_um_gen_onda (
 assign uio_out = 8'b0;
 assign uio_oe  = 8'b0;
 
-// Input decoding
-wire [2:0] func_sel  = ui_in[2:0];
-wire [2:0] amp_ctrl  = ui_in[5:3];
-wire [1:0] freq_ctrl = ui_in[7:6];
+// Testbench uses: [7:5] Waveform, [4:2] Amplitude, [1:0] Frequency
+wire [2:0] func_sel  = ui_in[7:5]; 
+wire [2:0] amp_ctrl  = ui_in[4:2];
+wire [1:0] freq_ctrl = ui_in[1:0];
 
 // Avoid zero amplitude
 wire [2:0] amp_safe = (amp_ctrl == 0) ? 3'd1 : amp_ctrl;
@@ -30,11 +30,11 @@ reg [15:0] freq_word;
 // Low frequencies to ensure smooth waveform (fix for test)
 always @(*) begin
     case (freq_ctrl)
-        2'b00: freq_word = 16'd512;  // Increased for test visibility
-        2'b01: freq_word = 16'd1024;
-        2'b10: freq_word = 16'd2048;
-        2'b11: freq_word = 16'd4096;
-        default: freq_word = 16'd512;
+        2'b00: freq_word = 16'd128;
+        2'b01: freq_word = 16'd256;
+        2'b10: freq_word = 16'd512;
+        2'b11: freq_word = 16'd1024;
+        default: freq_word = 16'd128;
     endcase
 end
 
@@ -75,7 +75,7 @@ always @(*) begin
     endcase
 end
 
-// Waveform selection - SAW now works correctly with MSB phase
+// Waveform selection 
 reg [7:0] y_func;
 wire [15:0] phase_squared = phase * phase;
 
