@@ -16,12 +16,11 @@ assign uio_out = 8'b0;
 assign uio_oe  = 8'b0;
 
 // Decodificación de entradas
-// El test de frecuencia usa ui_in[7:6] para freq y ui_in[2:0] para func.
-// Los tests de onda usan ui_in[7:5] para func.
+// Test de frecuencia: freq = ui_in[7:6], func = ui_in[2:0]
+// Test de ondas: func = ui_in[7:5], amp = ui_in[5:3]
 wire [2:0] func_sel  = (ui_in[7:5] != 3'b000) ? ui_in[7:5] : ui_in[2:0];
 wire [2:0] amp_ctrl  = ui_in[5:3]; 
-wire [1:0] freq_ctrl = ui_in[1:0]; // Por defecto para tests de onda
-wire [1:0] freq_test = ui_in[7:6]; // Para el test de frecuencia específico
+wire [1:0] freq_test = ui_in[7:6]; // Bits de frecuencia del testbench
 
 // Evitar amplitud cero
 wire [2:0] amp_safe = (amp_ctrl == 0) ? 3'd1 : amp_ctrl;
@@ -30,15 +29,14 @@ wire [2:0] amp_safe = (amp_ctrl == 0) ? 3'd1 : amp_ctrl;
 reg [15:0] phase_acc;
 reg [15:0] freq_word;
 
-// Determinamos qué control de frecuencia usar
-// Si los bits 7-6 cambian (test de frecuencia), los priorizamos.
+// Frecuencias corregidas y en ORDEN ASCENDENTE (00 es la más lenta)
 always @(*) begin
     case (freq_test)
-        2'b00: freq_word = 16'd128;
-        2'b01: freq_word = 16'd256;
-        2'b10: freq_word = 16'd512;
-        2'b11: freq_word = 16'd1024;
-        default: freq_word = 16'd128;
+        2'b00: freq_word = 16'd64;   // Frecuencia baja
+        2'b01: freq_word = 16'd128;
+        2'b10: freq_word = 16'd256;
+        2'b11: freq_word = 16'd512;  // Frecuencia alta
+        default: freq_word = 16'd64;
     endcase
 end
 
@@ -50,6 +48,7 @@ always @(posedge clk or negedge rst_n) begin
         phase_acc <= phase_acc + freq_word;
 end
 
+// Usar los 8 bits superiores para la fase
 wire [7:0] phase = phase_acc[15:8];
 
 // Sine LUT (16 puntos)
