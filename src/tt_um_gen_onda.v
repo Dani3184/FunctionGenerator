@@ -44,7 +44,6 @@ always @(posedge clk or negedge rst_n) begin
         phase_acc <= phase_acc + freq_word;
 end
 
-// Extract phase
 wire [7:0] phase = phase_acc[15:8];
 
 // Sine LUT
@@ -72,7 +71,7 @@ wire [15:0] phase_squared = phase * phase;
 always @(*) begin
     case (func_sel)
         3'b000: y_func = sine_out;
-        3'b001: y_func = phase;
+        3'b001: y_func = phase; // SAW
         3'b010: y_func = phase[7] ? 8'd255 : 8'd0;
         3'b011: y_func = phase[7] ? ((~phase) << 1) : (phase << 1);
         3'b100: y_func = phase_squared[15:8];
@@ -80,15 +79,15 @@ always @(*) begin
     endcase
 end
 
-// Amplitude scaling
+// FIX: better amplitude scaling
 reg [7:0] scaled;
 
 always @(*) begin
     case (amp_safe)
-        3'd1: scaled = y_func >> 2;                         // low
-        3'd2: scaled = y_func >> 1;                         // medium
-        3'd3: scaled = (y_func >> 1) + (y_func >> 2);       // ~0.75
-        default: scaled = y_func;                           // high/max
+        3'd1: scaled = (y_func * 8'd64) >> 8;
+        3'd2: scaled = (y_func * 8'd128) >> 8;
+        3'd3: scaled = (y_func * 8'd192) >> 8;
+        default: scaled = y_func;
     endcase
 end
 
