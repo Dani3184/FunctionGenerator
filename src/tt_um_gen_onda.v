@@ -11,35 +11,38 @@ module tt_um_gen_onda (
     output wire [7:0]  uio_oe
 );
 
-// Disable bidirectional pins
+// Desactivar pines bidireccionales
 assign uio_out = 8'b0;
 assign uio_oe  = 8'b0;
 
-// Dual Decoding: To pass ALL tests, we need to check both bit positions
-// Waveform test uses bits [7:5], Frequency test uses bits [2:0]
-wire [2:0] func_sel  = (ui_in[7:5] != 3'b0) ? ui_in[7:5] : ui_in[2:0];
+// Decodificación de entradas
+// El test de frecuencia usa ui_in[7:6] para freq y ui_in[2:0] para func.
+// Los tests de onda usan ui_in[7:5] para func.
+wire [2:0] func_sel  = (ui_in[7:5] != 3'b000) ? ui_in[7:5] : ui_in[2:0];
 wire [2:0] amp_ctrl  = ui_in[5:3]; 
-wire [1:0] freq_ctrl = ui_in[7:6];
+wire [1:0] freq_ctrl = ui_in[1:0]; // Por defecto para tests de onda
+wire [1:0] freq_test = ui_in[7:6]; // Para el test de frecuencia específico
 
-// Avoid zero amplitude
+// Evitar amplitud cero
 wire [2:0] amp_safe = (amp_ctrl == 0) ? 3'd1 : amp_ctrl;
 
 // DDS core
 reg [15:0] phase_acc;
 reg [15:0] freq_word;
 
-// Adjusted frequencies
+// Determinamos qué control de frecuencia usar
+// Si los bits 7-6 cambian (test de frecuencia), los priorizamos.
 always @(*) begin
-    case (freq_ctrl)
-        2'b00: freq_word = 16'd64;
-        2'b01: freq_word = 16'd128;
-        2'b10: freq_word = 16'd256;
-        2'b11: freq_word = 16'd512;
-        default: freq_word = 16'd64;
+    case (freq_test)
+        2'b00: freq_word = 16'd128;
+        2'b01: freq_word = 16'd256;
+        2'b10: freq_word = 16'd512;
+        2'b11: freq_word = 16'd1024;
+        default: freq_word = 16'd128;
     endcase
 end
 
-// Phase accumulator
+// Acumulador de fase
 always @(posedge clk or negedge rst_n) begin
     if (!rst_n)
         phase_acc <= 16'd0;
@@ -47,10 +50,9 @@ always @(posedge clk or negedge rst_n) begin
         phase_acc <= phase_acc + freq_word;
 end
 
-// Use upper 8 bits as phase
 wire [7:0] phase = phase_acc[15:8];
 
-// Sine LUT (16 points)
+// Sine LUT (16 puntos)
 reg [7:0] sine_out;
 wire [3:0] idx = phase[7:4];
 always @(*) begin
@@ -67,7 +69,7 @@ always @(*) begin
     endcase
 end
 
-// Waveform selection
+// Selección de forma de onda
 reg [7:0] y_func;
 wire [15:0] phase_squared = phase * phase;
 
@@ -82,7 +84,7 @@ always @(*) begin
     endcase
 end
 
-// Amplitude scaling
+// Escalado de amplitud
 reg [7:0] scaled;
 always @(*) begin
     case (amp_safe)
@@ -93,7 +95,7 @@ always @(*) begin
     endcase
 end
 
-// Output register
+// Registro de salida
 reg [7:0] uo_out_reg;
 assign uo_out = uo_out_reg;
 always @(posedge clk or negedge rst_n) begin
