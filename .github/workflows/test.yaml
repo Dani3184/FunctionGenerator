@@ -1,0 +1,51 @@
+name: Run Cocotb Tests
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Install Icarus Verilog
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y iverilog
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install -r test/requirements.txt
+
+      - name: Run cocotb tests
+        run: |
+          cd test
+          make clean
+          make
+
+      - name: Check test results
+        run: |
+          if grep -q "<failure" test/results.xml; then
+            echo "Tests FAILED"
+            exit 1
+          else
+            echo "Tests PASSED"
+          fi
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: simulation-results
+          path: |
+            test/tb.fst
+            test/results.xml
