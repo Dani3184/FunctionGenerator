@@ -78,7 +78,7 @@ The 8-bit input controls the generator's behavior:
 
 The image below demonstrates the transitions between different waveforms and the impact of amplitude scaling.
 
-![Vivado Simulation Waveform](docs/Simulation_Waveform.png)
+![Vivado Simulation Waveform](Simulation_Waveform.png)
 
 *Note: The `uo_out` signal is displayed in 'Analog' style with 'Hold' interpolation for better visualization.*
 
