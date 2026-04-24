@@ -3,7 +3,7 @@
 //Author: Daniel Roberto Garcia Miranda
 //University: Universidad Mayor de San Andres, La Paz Bolivia
 //Career: Physics
-
+//Date: April 24th, 2026
 module tb;
     reg clk = 0;
     reg rst_n = 0;
@@ -46,10 +46,11 @@ module tb;
         set_mode(8'b00_111_011, "TRIANGLE");  repeat(1024) @(posedge clk);
         set_mode(8'b00_111_100, "QUADRATIC"); repeat(1024) @(posedge clk);
 
-        // TEST 2: Amplitude Sweep (Sine Wave)
+        // TEST 2: Full Amplitude Sweep (Sine Wave)
         set_mode(8'b00_000_000, "SINE 12.5%"); repeat(1024) @(posedge clk);
         set_mode(8'b00_001_000, "SINE 25%");   repeat(1024) @(posedge clk);
         set_mode(8'b00_010_000, "SINE 50%");   repeat(1024) @(posedge clk);
+        set_mode(8'b00_111_000, "SINE 100%");  repeat(1024) @(posedge clk);
 
         // TEST 3: Frequency Sweep (Square Wave)
         set_mode(8'b00_111_010, "SQ FREQ 00 (SLOW)");   repeat(1024) @(posedge clk);
