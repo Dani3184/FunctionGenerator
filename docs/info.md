@@ -83,6 +83,11 @@ Observe the output `uo_out[7:0]`:
 - In simulation (waveform viewer)
 - Or using an external DAC and oscilloscope
 
+### Simulation in Vivado
+1. Run the behavioral simulation using `tb.v`.
+2. To see the waveforms exactly as shown in the documentation, open the configuration file:
+   `sim/main_waveform_config.wcfg`
+   
 ---
 
 ## External hardware
