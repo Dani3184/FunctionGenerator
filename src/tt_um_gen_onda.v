@@ -3,6 +3,7 @@
 //Author: Daniel Roberto Garcia Miranda
 //University: Universidad Mayor de San Andres, La Paz Bolivia
 //Career: Physics
+//Date: April 24th, 2026
 module tt_um_gen_onda (
     input  wire        clk,      
     input  wire        rst_n,    
