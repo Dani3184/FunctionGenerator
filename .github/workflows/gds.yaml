@@ -2,6 +2,8 @@ name: gds
 
 on:
   push:
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
@@ -9,7 +11,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: checkout repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
         with:
           submodules: recursive
 
@@ -30,7 +32,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: checkout repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
         with:
           submodules: recursive
 
@@ -41,7 +43,8 @@ jobs:
     needs: gds
     runs-on: ubuntu-24.04
     permissions:
-      pages: write      # to deploy to Pages
-      id-token: write   # to verify the deployment originates from an appropriate source
+      contents: read
+      pages: write      # para desplegar a GitHub Pages
+      id-token: write   # necesario para autenticar el despliegue
     steps:
       - uses: TinyTapeout/tt-gds-action/viewer@ttsky26a
