@@ -1,8 +1,7 @@
-[![gds](https://github.com/Dani3184/FunctionGenerator/actions/workflows/gds.yml/badge.svg)](https://github.com/Dani3184/FunctionGenerator/actions/workflows/gds.yml)
-[![docs](https://github.com/Dani3184/FunctionGenerator/actions/workflows/docs.yml/badge.svg)](https://github.com/Dani3184/FunctionGenerator/actions/workflows/docs.yml)
-[![test](https://github.com/Dani3184/FunctionGenerator/actions/workflows/test.yml/badge.svg)](https://github.com/Dani3184/FunctionGenerator/actions/workflows/test.yml)
-[![fpga](https://github.com/Dani3184/FunctionGenerator/actions/workflows/fpga.yml/badge.svg)](https://github.com/Dani3184/FunctionGenerator/actions/workflows/fpga.yml)
-
+[![gds](https://github.com/Dani3184/FunctionGenerator/actions/workflows/gds.yaml/badge.svg)](https://github.com/Dani3184/FunctionGenerator/actions/workflows/gds.yaml)
+[![docs](https://github.com/Dani3184/FunctionGenerator/actions/workflows/docs.yaml/badge.svg)](https://github.com/Dani3184/FunctionGenerator/actions/workflows/docs.yaml)
+[![test](https://github.com/Dani3184/FunctionGenerator/actions/workflows/test.yaml/badge.svg)](https://github.com/Dani3184/FunctionGenerator/actions/workflows/test.yaml)
+[![fpga](https://github.com/Dani3184/FunctionGenerator/actions/workflows/fpga.yaml/badge.svg)](https://github.com/Dani3184/FunctionGenerator/actions/workflows/fpga.yaml)
 # DDS Waveform Generator
 
 ## Description
