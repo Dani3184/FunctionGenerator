@@ -2,14 +2,18 @@ name: docs
 
 on:
   push:
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
   docs:
     runs-on: ubuntu-24.04
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true # Optamos por Node 24 para evitar la advertencia
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4 # v4 es la versión estable actual
         with:
           submodules: recursive
 
