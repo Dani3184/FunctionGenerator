@@ -2,7 +2,7 @@
 [![docs](https://github.com/Dani3184/FunctionGenerator/actions/workflows/docs.yaml/badge.svg)](https://github.com/Dani3184/FunctionGenerator/actions/workflows/docs.yaml)
 [![test](https://github.com/Dani3184/FunctionGenerator/actions/workflows/test.yaml/badge.svg)](https://github.com/Dani3184/FunctionGenerator/actions/workflows/test.yaml)
 [![fpga](https://github.com/Dani3184/FunctionGenerator/actions/workflows/fpga.yaml/badge.svg)](https://github.com/Dani3184/FunctionGenerator/actions/workflows/fpga.yaml)
-# DDS Waveform Generator
+# DDS Waveform Generator - IEEE
 
 ## Description
 This project implements a digital waveform generator based on a Direct Digital Synthesis (DDS) architecture.  
